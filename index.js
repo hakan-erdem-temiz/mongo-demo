@@ -2,13 +2,13 @@ const mongoose = require("mongoose");
 
 mongoose
   .connect("mongodb://localhost/mongo-exercises")
-  .then(console.log("Connected"))
-  .catch(console.log("error here"));
+  .then(() => console.log("Connected"))
+  .catch(() => console.log("error here"));
 
 const Schema = {
   tags: [String],
   date: { type: Date, default: Date.now },
-  name: String,
+  name: { type: String, required: true },
   author: String,
   isPublished: Boolean,
   price: Number
@@ -45,7 +45,52 @@ async function run() {
   console.log(ex3);
 }
 
-run();
+async function updateQueryFirstCourse(id) {
+  console.log("test:");
+  const course = await Course.findById(id);
+  if (!course) return;
+
+  //   course.set({
+  //     isPublished: true,
+  //     author: "Another Author"
+  //   });
+
+  course.isPublished = true;
+  course.author = "Another Author";
+
+  const result = await course.save();
+  console.log("test:" + result);
+}
+
+async function updateFirstCourse(id) {
+  const result = Course.update(
+    { _id: id },
+    {
+      $set: {
+        author: "het",
+        isPublished: false
+      }
+    }
+  );
+
+  console.log(result);
+}
+async function updateFirstCourse2(id) {
+  const course = await Course.findByIdAndUpdate(
+    id,
+    {
+      $set: {
+        author: "erdem",
+        isPublished: true
+      }
+    },
+    { new: true }
+  ); //last paramater for getting updated data. Other wise u get old document data.
+
+  console.log(course);
+}
+
+updateQueryFirstCourse("5a68fde3f09ad7646ddec17e");
 
 // const mongoose = require("mongoose");
 
