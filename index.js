@@ -1,145 +1,46 @@
 const mongoose = require("mongoose");
+const express = require("express");
+const config = require("config");
+var app = express();
 
 mongoose
   .connect("mongodb://localhost/mongo-exercises")
   .then(() => console.log("Connected"))
   .catch(() => console.log("error here"));
 
-const Schema = {
-  tags: [String],
-  date: { type: Date, default: Date.now },
-  name: { type: String, required: true },
-  author: String,
-  isPublished: Boolean,
-  price: Number
-};
+require("./startup/routes")(app);
 
-const Course = mongoose.model("Course", Schema);
+const {
+  getFormattedListHourlyAndDailyRS,
+  getFormattedListHourlyAndDaily,
+  getFormattedListHourly,
+  updateQueryFirstCourse,
+  getFormattedList
+} = require("./mongoTests/agent-state-detail");
 
-async function exercise1() {
-  return await Course.find({
-    isPublished: true,
-    tag: { $in: ["frontend", "backend"] }
-  })
-    .sort({ name: 1 })
-    .select({ name: 1, author: 1 });
-}
+const { getList, callTypesOffered } = require("./mongoTests/sharedList");
+const {
+  CreateCalltypeGroup,
+  GetCalltypeGroup,
+  DeleteCalltypeGroup,
+  UpdateCalltypeGroup
+} = require("./mongoTests/calltypeGroupList");
 
-async function exercise2() {
-  return Course.find({ isPublished: true })
-    .sort({ price: -1 })
-    .select({ name: 1, author: 1 });
-}
+const { getCalls } = require("./mongoTests/ctg");
+//getFormattedListHourlyAndDailyRS();
+//getList();
 
-async function exercise3() {
-  return Course.find({ isPublished: true }).or([
-    { price: { $gte: 15 } },
-    { name: /.*by.*/i }
-  ]);
-}
+//----- CalltypeGroup
 
-async function run() {
-  const ex1 = await exercise1();
-  const ex2 = await exercise2();
-  const ex3 = await exercise3();
-  console.log(ex3);
-}
+//CreateCalltypeGroup();
+//UpdateCalltypeGroup();
+//DeleteCalltypeGroup();
+//GetCalltypeGroup();
+//getCalls();
 
-async function updateQueryFirstCourse(id) {
-  console.log("test:");
-  const course = await Course.findById(id);
-  if (!course) return;
+const port = "5050"; //process.env.PORT || config.get("port");
+const server = app.listen(port, () =>
+  console.log(`Listening on port ${port}...`)
+);
 
-  //   course.set({
-  //     isPublished: true,
-  //     author: "Another Author"
-  //   });
-
-  course.isPublished = true;
-  course.author = "Another Author";
-
-  const result = await course.save();
-  console.log("test:" + result);
-}
-
-async function updateFirstCourse(id) {
-  const result = Course.update(
-    { _id: id },
-    {
-      $set: {
-        author: "het",
-        isPublished: false
-      }
-    }
-  );
-
-  console.log(result);
-}
-async function updateFirstCourse2(id) {
-  const course = await Course.findByIdAndUpdate(
-    id,
-    {
-      $set: {
-        author: "erdem",
-        isPublished: true
-      }
-    },
-    { new: true }
-  ); //last paramater for getting updated data. Other wise u get old document data.
-
-  console.log(course);
-}
-
-updateQueryFirstCourse("5a68fde3f09ad7646ddec17e");
-
-// const mongoose = require("mongoose");
-
-// mongoose
-//   .connect("mongodb://localhost/playground")
-//   .then(() => console.log("Connected to MongoDB"))
-//   .catch(() => console.log("Could not connect"));
-
-// const skillSchema = new mongoose.Schema({
-//   name: String,
-//   Level: String,
-//   tags: [String],
-//   date: { type: Date, default: Date.now },
-//   isLiked: Boolean
-// });
-
-// const Skill = mongoose.model("Skill", skillSchema); // Pascal Case for classes
-
-// async function createSkill() {
-//   const skill = new Skill({
-//     name: "ReactJS",
-//     Level: "Mid",
-//     tags: ["frontend"],
-//     isLiked: true
-//   });
-
-//   const result = await skill.save();
-//   console.log(result);
-// }
-
-// //createSkill();
-
-// async function getSkills() {
-//   const pageNumber = 2;
-//   const pageSize = 10;
-
-//   const skills = await Skill.find({ isLiked: true })
-//     // .find({name:'/^StartsWith/'})
-//     // .find({name:'/EndsWith$/i'}) //i ignore lowerupper case
-//     // .find({name:'/.*Contains.*/i'})
-//     //.find({isLİked:{$in:[true,false]}})
-//     .skip((pageNumber - 1) * pageSize)
-//     .or([{ Level: "Mid" }, { Level: "Expert" }])
-//     //.and([])
-//     .limit(pageSize)
-//     .sort({ name: 1 }) // 1 is decending -1 reverse
-//     .select({ name: 1, tags: 1 }); //get only name and tags propories
-//   // .count();
-//   console.log(skills);
-// }
-
-// getSkills();
+module.exports = server;

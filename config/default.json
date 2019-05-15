@@ -1,0 +1,7 @@
+{
+  "name": "My Express APp",
+  "jwtPrivateKey": "",
+  "db": "mongodb://mongodb://localhost/mongo-exercises",
+  "port": "3900",
+  "requiresAuth": false
+}
